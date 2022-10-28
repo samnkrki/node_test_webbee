@@ -1,5 +1,6 @@
 import { Get, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { col, Op, fn, where } from 'sequelize';
 import Event from './entities/event.entity';
 import Workshop from './entities/workshop.entity';
 
@@ -179,6 +180,21 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    return this.eventRepository.findAll({
+      nest: true,
+      attributes: {
+        exclude: ['updatedAt'],
+      },
+      include: [
+        {
+          model: Workshop,
+          attributes: {
+            exclude: ['updatedAt'],
+          },
+          where: { start: { [Op.gt]: new Date() } },
+          order: [['id', 'ASC']],
+        },
+      ],
+    });
   }
 }
